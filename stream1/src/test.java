@@ -28,6 +28,7 @@ public class test implements Runnable{
 		new Thread(new test()).start();
 		new Thread(new test()).start();
 		System.out.println("Done");
+		System.out.println("Does it work?");
 	}
 	
 	public void run() {
