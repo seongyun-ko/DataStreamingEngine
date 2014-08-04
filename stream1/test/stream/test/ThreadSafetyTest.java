@@ -8,7 +8,7 @@ import stream.query.operator.Operator;
 public class ThreadSafetyTest {
 
 	public static void main(String[] args) throws ParsingException {
-		JoinOperator o = new JoinOperator(new String[] { "Plate" }, new String[] { "Plate" }, 1000.0);
+		JoinOperator o = new JoinOperator(new String[] { "Plate" }, new String[] { "Plate" }, 1000);
 		new DataGenerator(o, 0, "Pohang").start();
 		new DataGenerator(o, 1, "Seoul").start();
 	}
@@ -48,9 +48,21 @@ public class ThreadSafetyTest {
 
 		@Override
 		public void run() {
-			for (int i = 0; i < 10000; i++) {
-				operator.process(port, new Tuple(new String[] { "Location", "Plate" },
-						new Object[] { location, "" + i }, i));
+		//	System.out.println("Start!");
+			for (int i = 0; i < 10; i++) {
+				synchronized(operator) {
+					try {
+						operator.notify();
+			//			System.out.println("I am waiting!");
+						operator.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} finally {
+						operator.process(port, new Tuple(new String[] { "Location", "Plate" },
+								new Object[] { location, "" + i }, i));
+			//			System.out.println("What's going on here?");
+					}
+				}
 			}
 		}
 

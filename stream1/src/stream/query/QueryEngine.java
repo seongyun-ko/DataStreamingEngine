@@ -37,7 +37,7 @@ public class QueryEngine {
 		Operator producer_operator = operator(producerName);
 		Operator consumer_operator = operator(consumerName);
 		if( producer_operator == null || consumer_operator == null) throw new NoOperatorException();
-		else operator(producerName).addConsumer(operator(consumerName), port);
+		else producer_operator.addConsumer(consumer_operator, port);
 	}
 
 	/**
@@ -72,7 +72,6 @@ public class QueryEngine {
 
 		for (int i = 0; i < constructors.length; i++) {
 			Constructor<?> constructor = constructors[i];
-
 			try {
 				obj = (Operator) constructor.newInstance(definition.arguments());
 				if(obj != null) break;

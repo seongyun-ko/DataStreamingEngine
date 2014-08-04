@@ -13,6 +13,8 @@ import stream.expression.UnboundVariableException;
  */
 public class ProjectionOperator extends Operator {
 	
+	Tuple resultT;
+	
 	protected ArithmeticExpression predicate;
 	String s1 = null;
 	String s2 = null;
@@ -51,7 +53,10 @@ public class ProjectionOperator extends Operator {
 	@Override
 	public void process(int port, Tuple t) {		
 		try {
-		System.out.println(new Tuple( new String[] { s1 }, 
+//		resultT = new Tuple( new String[] { s1 }, 
+//				new Object[] { t.evaluate(predicate) }, t.timestamp() );
+//		System.out.println(resultT);
+		this.output(new Tuple( new String[] { s1 }, 
 				new Object[] { t.evaluate(predicate) }, t.timestamp() ));
 		
 		} catch (UnboundVariableException e) {

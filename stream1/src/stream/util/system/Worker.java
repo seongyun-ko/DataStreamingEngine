@@ -53,6 +53,7 @@ public class Worker extends Host implements WorkerInterface {
 		this.workerID = workerID;
 		this.master = Host.lookup(masterAddress, masterInterface);
 		master.registerWorker(workerID, address);
+		// hey master, register me!
 	}
 
 	/**

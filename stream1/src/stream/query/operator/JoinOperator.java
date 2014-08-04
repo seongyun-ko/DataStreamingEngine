@@ -1,6 +1,7 @@
 package stream.query.operator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,7 +21,8 @@ public class JoinOperator extends Operator {
 //	MultiValuedHashMap<ArrayList<Object>, Tuple> h = new MultiValuedHashMap<ArrayList<Object>, Tuple>();
 	MultiValuedHashMap<ArrayList<Object>, Tuple> s0 = new MultiValuedHashMap<ArrayList<Object>, Tuple>();
 	MultiValuedHashMap<ArrayList<Object>, Tuple> s1 = new MultiValuedHashMap<ArrayList<Object>, Tuple>();
-	Set<Tuple> Redundant = new HashSet<Tuple>();
+	Set<Tuple> Redundant = new HashSet<Tuple>();	
+//	HashMap<Integer, MultiValuedHashMap<ArrayList<Object>, Tuple>> S = new HashMap<Integer, MultiValuedHashMap<ArrayList<Object>, Tuple>>();
 	
 	Tuple JoinedTuple;
 	/**

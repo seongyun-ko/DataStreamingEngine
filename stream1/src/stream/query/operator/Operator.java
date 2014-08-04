@@ -39,7 +39,7 @@ public abstract class Operator {
 		}
 	}
 
-	/**
+	/**   
 	 * Connects the specified port of the specified Operator to the output of this Operator.
 	 * 
 	 * @param o

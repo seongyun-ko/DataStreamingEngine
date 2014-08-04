@@ -35,11 +35,14 @@ public class StreamProcessingSystemTest {
 		new Master(config);
 
 		MasterInterface master = Host.lookup("127.0.0.1:10000", MasterInterface.class);
+		// master로 연결된 proxy ??
+		
 		master.createOperator("projection@0", "ProjectionOperator([Fahrenheit:Celsius * 9 / 5 + 32])");
 		master.createOperator("print@1", "PrintOperator() [projection@0]");
-
+		
 		WorkerInterface worker0 = Host.lookup("127.0.0.1:20000", WorkerInterface.class);
-
+		// worker0로 연결된 proxy
+		
 		Vector<Tuple> tuples = new Vector<Tuple>();
 		tuples.add(new Tuple(new String[] { "Celsius" }, new Object[] { 0.0 }, 0.0));
 		tuples.add(new Tuple(new String[] { "Celsius" }, new Object[] { 10.0 }, 1000.0));

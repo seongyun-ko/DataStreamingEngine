@@ -89,6 +89,7 @@ public class RegistryClient {
 				new InvocationHandler() {
 
 					public Object invoke(Object object, Method method, Object[] args) throws Throwable {
+						//  특정 object에서 실행할 method(args)를 서버로 invoke
 						Object invocationResult;
 						try {
 							// obtain the result of invoking the specified method on the Registry

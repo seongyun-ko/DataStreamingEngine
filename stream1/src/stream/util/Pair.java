@@ -10,7 +10,7 @@ package stream.util;
  *            the type of the second value.
  */
 //public class Pair<A extends Comparable<A>, B extends Comparable<B>> implements java.io.Serializable, Comparable<Pair<A,B>> {
-// ÇÔ¼öÀÇ return °ªÀÌ ¿©·¯°³ÀÇ °æ¿ì, ¿¹¸¦ µé¾î º¤ÅÍÈ­ ÇØ¼­ return ÇÒ ¼öÀÖ´Ù. pair·Î
+// ï¿½Ô¼ï¿½ï¿½ï¿½ return ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ ï¿½Ø¼ï¿½ return ï¿½ï¿½ ï¿½ï¿½ï¿½Ö´ï¿½. pairï¿½ï¿½
 
 public class Pair<A, B> implements java.io.Serializable {
 
@@ -50,6 +50,11 @@ public class Pair<A, B> implements java.io.Serializable {
 	public A first() {
 		return first;
 	}
+	
+	public A first(A val) {
+		this.first = val;
+		return first;
+	}
 
 	/**
 	 * Returns the second value.
@@ -57,6 +62,11 @@ public class Pair<A, B> implements java.io.Serializable {
 	 * @return the second value.
 	 */
 	public B second() {
+		return second;
+	}
+	
+	public B second(B val) {
+		this.second = val;
 		return second;
 	}
 

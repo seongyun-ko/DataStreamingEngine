@@ -1,5 +1,7 @@
 package stream.test;
 
+import java.util.HashSet;
+
 import stream.util.system.Configuration;
 import stream.util.system.Host;
 import stream.util.system.Master;
@@ -27,12 +29,12 @@ public class MasterWorkersTest {
 		config.update("-master-port", "10000");
 		config.update("-workers", "2");
 
+		new Master(config, WorkerInterface.class);
 		createWorker(0, 20000, "127.0.0.1:10000");
 		createWorker(1, 20001, "127.0.0.1:10000");
-		new Master(config, WorkerInterface.class);
 
 		MasterInterface master = Host.lookup("127.0.0.1:10000", MasterInterface.class);
-
+		
 		Thread.sleep(100);
 
 		master.shutdown();

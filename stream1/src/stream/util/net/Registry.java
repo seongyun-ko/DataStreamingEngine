@@ -3,6 +3,7 @@ package stream.util.net;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -12,12 +13,14 @@ import java.util.HashSet;
  * @author Jeong-Hyon Hwang (jhhwang@cs.albany.edu)
  */
 public class Registry {
-
+	// Registry of the combination of Server and Map.
+		
 	/**
 	 * The objects managed by this Registry.
 	 */
 	HashMap<String, Object> objects = new HashMap<String, Object>();
-
+	// Key : String type , Value : Object type
+	
 	/**
 	 * The server socket.
 	 */
@@ -26,15 +29,16 @@ public class Registry {
 	/**
 	 * The threads that communicate with clients.
 	 */
-	HashSet<CommunicationThread> communicationThreads = new HashSet<CommunicationThread>();
-
+	HashSet<CommunicationThread> activecommunicationThreads = new HashSet<CommunicationThread>();
+	
 	/**
 	 * A CommunicationThread communicates with a client.
 	 * 
 	 * @author Jeong-Hyon Hwang (jhhwang@cs.albany.edu)
 	 */
 	protected class CommunicationThread extends Thread {
-
+		// class Coo~T implement Runnable    is also possible with new.Thread(new C~T~()).start();
+		// Recommendation : Separate Task and Thread.
 		/**
 		 * A socket for communication with the client.
 		 */
@@ -59,15 +63,16 @@ public class Registry {
 				ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
 				for (;;) {
 					Object object = inputStream.readObject();
-
-					object = handle(object);
-					outputStream.writeObject(object);
+					Object response = handle(object);
+					outputStream.writeObject(response);
+					
 					outputStream.flush();
 					outputStream.reset();
 				}
 			} catch (Exception e) {
-				synchronized (communicationThreads) {
-					communicationThreads.remove(this);
+				// Suddenly, if the connection failed, it removes itself.
+				synchronized (activecommunicationThreads) {
+					activecommunicationThreads.remove(this);
 				}
 			}
 		}
@@ -89,18 +94,21 @@ public class Registry {
 				for (;;) {
 					try {
 						CommunicationThread communicationThread = new CommunicationThread(socket.accept());
-						synchronized (communicationThreads) {
-							communicationThreads.add(communicationThread);
+						// Listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made.
+						// Threads can also be used for blocking operations. Main proceeds even though some threads are blocked.
+						synchronized (activecommunicationThreads) {
+							activecommunicationThreads.add(communicationThread);
 							communicationThread.start();
 						}
 					} catch (Exception e) {
-						if (socket.isClosed()) {
+						if (socket.isClosed()) { 
+							// If the serversocket is closed, it disconnects all the connections with all clients.
 							break;
 						}
 					}
 				}
-				synchronized (communicationThreads) {
-					for (CommunicationThread communicationThread : communicationThreads) {
+				synchronized (activecommunicationThreads) {
+					for (CommunicationThread communicationThread : activecommunicationThreads) {
 						try {
 							communicationThread.socket.close();
 						} catch (IOException e) {
@@ -109,6 +117,7 @@ public class Registry {
 				}
 			}
 		}.start();
+		// Anonymous blah blah~
 	}
 
 	/**
@@ -164,17 +173,17 @@ public class Registry {
 	/**
 	 * Handles the specified object.
 	 * 
-	 * @param object
+	 * @param request
 	 *            the object to handle.
 	 * @return the result of handling the specified object.
 	 */
-	public Object handle(Object object) {
-		if (object instanceof LookupRequest) { // lookup request
-			object = handle((LookupRequest) object);
-		} else if (object instanceof MethodInvocationRequest) { // method invocation
-			object = handle((MethodInvocationRequest) object);
+	public Object handle(Object request) {
+		if (request instanceof LookupRequest) { // lookup request
+			request = handle((LookupRequest) request);
+		} else if (request instanceof MethodInvocationRequest) { // method invocation
+			request = handle((MethodInvocationRequest) request);
 		}
-		return object;
+		return request;
 	}
 
 	/**
@@ -186,10 +195,12 @@ public class Registry {
 	 *         false otherwise.
 	 */
 	protected boolean handle(LookupRequest lookupRequest) {
+		// find the Object requested.
 		String objectID = lookupRequest.objectID();
 		Class<?> objectType = lookupRequest.objectType();
 		Object object = objects.get(objectID);
-		return objectType.isInstance(object); // true if the object to access has the type specified by the client.
+		return objectType.isInstance(object); 
+		// true if the object to access has the type specified by the client.
 	}
 
 	/**
@@ -200,10 +211,12 @@ public class Registry {
 	 * @return the result of invocation; a MethodInvocationException if the method invocation fails.
 	 */
 	protected Object handle(MethodInvocationRequest r) {
+		// r includes all the information needed to invoke certain method.
 		Object o = objects.get(r.objectID());
 		try {
 			Class<?> c = o.getClass();
-			Object result = c.getMethod(r.methodName(), r.parameterTypes()).invoke(o, r.args());
+			Method method = c.getMethod(r.methodName(), r.parameterTypes()); // Find the method
+			Object result = method.invoke(o, r.args()); // Invoke the method found
 			return result; // return the result
 		} catch (Throwable t) {
 			return new MethodInvocationException(t);

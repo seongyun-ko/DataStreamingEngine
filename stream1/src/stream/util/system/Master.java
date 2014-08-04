@@ -89,6 +89,7 @@ public class Master extends Host implements MasterInterface {
 	/**
 	 * Waits until contacted by an appropriate number of Workers as specified in the configuration.
 	 */
+	//          It means 'synchronization(this)'
 	protected synchronized void waitForWorkers() {
 		System.out.println(this + " is waiting to be contacted by " + configuration.numberWorkers() + " Workers.");
 		while (workers.size() < configuration.numberWorkers) {

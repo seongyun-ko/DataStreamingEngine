@@ -2,9 +2,11 @@ package stream.query.operator;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import stream.data.Tuple;
 import stream.query.operator.aggregate.Aggregate;
+import stream.query.operator.aggregate.AggregateFunction;
 
 /**
  * An AggregateOperator produces an aggregate value for each group.
@@ -148,36 +150,45 @@ public class AggregateOperator extends Operator {
 	@Override
 	public void process(int port, Tuple t) {
 		// Problem 3
-		
+//		System.out.println("At " + t.timestamp());
 		ArrayList<Object> inputsForAggregateFunctions = t.values(new String[] { "Celsius" });
-		// AggregateFunctions 에 쓰일 Attributes
-		
 		ArrayList<Object> group = t.values(new String[] { "Location" });
-		// Location을 대상으로 Grouping한 후에, Celsius의 Avr과 Max를 구하고자 함
 						
-			double init =(double)(int)(t.timestamp() / this.stepSize) - (this.windowSize / this.stepSize -1 );
-			Double k;
-
-			while((k = windows.floorKey(init-1)) != null) {
-				System.out.println("Key :" + k +" is removed");
-				System.out.println(windows.get(k));
-				windows.remove(k); 
-	//			windows.get(k).aggregate.
+		double init =(double)(int)(t.timestamp() / this.stepSize) - (this.windowSize / this.stepSize -1 );
+//		System.out.println("Whiat is init? " + init);
+		if(init < 0) init = 0;
+		Double k;
+		Entry<ArrayList<Object>, ArrayList<AggregateFunction<Object, ?>>> ent;
+		
+		while((k = windows.floorKey(init-1)) != null) {
+			while ((ent = windows.get(k).aggregate.removeFirst()) != null) {
+//				System.out.println(t.timestamp());
+				System.out.println(new Tuple(new String[] { this.groupingAttributes[0], this.outputAttributes[0].toString() }, 
+						new Object[] { ent.getKey().get(0), ent.getValue().get(0).aggregateValue() }, t.timestamp()));
+	
+//				System.out.println("group: " + ent.getKey() + ", aggregate functions: " + ent.getValue());
+//				ArrayList<AggregateFunction<Object, ?>> aFunctions = ent.getValue();
+//				for (AggregateFunction<Object, ?> aFunction : aFunctions) {
+//					System.out.println(" " + aFunction.aggregateValue());
+//				}
 			}
+			windows.remove(k);
+//			System.out.println("GC : " + k );
+		}
 			
-			while(t.timestamp() >= init*this.stepSize &&
-					t.timestamp() < ( init*this.stepSize + this.windowSize)) {
-				if(!windows.containsKey(init)) windows.put(init, new Window());
-				try {
-					System.out.println("windows.get(" + init + ") is updated");
-					windows.get(init).update(inputsForAggregateFunctions, group);
-				} catch (InstantiationException e) {
-					e.printStackTrace();
-				}				
-				init ++;
+		while(t.timestamp() >= init*this.stepSize &&
+				t.timestamp() < ( init*this.stepSize + this.windowSize)) {
+			if(!windows.containsKey(init)){
+				windows.put(init, new Window());
+//				System.out.println("A window is created at " + init);
 			}
-			System.out.println();
-			
+			try {
+//				System.out.println("windows.get(" + init + ") is updated");
+				windows.get(init).update(inputsForAggregateFunctions, group);
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			}				
+			init ++;
+		}
 	}
-
 }

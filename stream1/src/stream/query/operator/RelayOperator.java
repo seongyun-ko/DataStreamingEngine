@@ -43,7 +43,7 @@ public class RelayOperator extends Operator {
 	 *            the port of the Operator.
 	 */
 	public RelayOperator(WorkerInterface worker, String operatorName, int operatorPort) {
-		this.worker = worker;
+		this.worker = worker; // proxy of the remote worker.
 		this.operatorName = operatorName;
 		this.operatorPort = operatorPort;
 	}
